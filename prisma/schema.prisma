@@ -1,0 +1,83 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String @unique @default(uuid())
+  name     String
+  email    String
+  password String
+  role     String
+
+  createdAt     DateTime        @default(now())
+  Establishment Establishment[]
+
+  @@map("users")
+}
+
+model Establishment {
+  id String @unique @default(uuid())
+
+  name        String
+  description String
+
+  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId String
+
+  city    String
+  state   String
+  country String
+
+  coordinates String
+
+  websiteLink String
+
+  owner   User   @relation(fields: [ownerId], references: [id])
+  ownerId String
+
+  createdAt              DateTime                 @default(now())
+  EstablishmentPropertie EstablishmentPropertie[]
+
+  @@map("establishments")
+}
+
+model EstablishmentPropertie {
+  id String @unique @default(uuid())
+
+  establishments  Establishment     @relation(fields: [establishmentId], references: [id])
+  propertie       CategoryPropertie @relation(fields: [propertieId], references: [id])
+  value           String
+  establishmentId String
+  propertieId     String
+
+  @@map("establishment_properties")
+}
+
+model Category {
+  id String @unique @default(uuid())
+
+  name        String
+  description String
+
+  createdAt     DateTime            @default(now())
+  properties    CategoryPropertie[]
+  Establishment Establishment[]
+
+  @@map("category")
+}
+
+model CategoryPropertie {
+  id                     String                   @unique @default(uuid())
+  key                    String
+  name                   String
+  Category               Category?                @relation(fields: [categoryId], references: [id])
+  categoryId             String?
+  EstablishmentPropertie EstablishmentPropertie[]
+
+  @@map("category_properties")
+}
